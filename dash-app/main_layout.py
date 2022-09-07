@@ -13,7 +13,7 @@ import plotly.io as pio
 pio.renderers.default='browser'
 from colors import colors
 from x_axes import years, quarters, months 
-from sql_queries import*
+from sql_queries_vm import*
 
 from tabs.MtM_tab import MtM_layout
 from tabs.merchant_cr_tab import merchant_cr_layout
