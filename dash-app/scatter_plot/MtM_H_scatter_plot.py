@@ -8,7 +8,7 @@ from dash import dcc, html
 import plotly.graph_objs as go
 from x_axes import years, quarters, months
 from colors import colors 
-from sql_queries import*
+from sql_queries_vm import*
 
 width=1.5
 dashed="solid"

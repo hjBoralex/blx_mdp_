@@ -8,7 +8,7 @@ from dash import dcc, html
 import plotly.graph_objs as go
 from colors import colors
 from x_axes import years, quarters, months
-from sql_queries import*
+from sql_queries_vm import*
 
 
 BAR_H_WIDTH = 2 
