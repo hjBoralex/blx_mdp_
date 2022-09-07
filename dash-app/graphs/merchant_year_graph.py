@@ -10,7 +10,7 @@ from colors import colors
 from tables.prod_merchant_table import prod_merchant_tbl
 from functions import make_dbc_table
 from x_axes import years, quarters, months 
-from sql_queries import*
+from sql_queries_vm import*
 
 annotations = [dict(
             x=xi,

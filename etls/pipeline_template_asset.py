@@ -12,25 +12,24 @@ import datetime as dt
 xrange = range
 from pandasql import sqldf
 pysqldf = lambda q: sqldf(q, globals())
-
 pd.options.display.float_format = '{:.3f}'.format
 pd.set_option('display.max_columns', 200)
 
 import os
 print("The working directory was: {0}".format(os.getcwd()))
-os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/etls/asset-hedge/")
+os.chdir("C:/hjBoralex/etl/gitcwd/blx_mdp_front-end/etls/")
 print("The current working directory is: {0}".format(os.getcwd()))
 
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
 path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/temp/'
 
 
-#============================================================
-#===============     Asset VMR     ==========================
-#============================================================
+#====================================================================
+#=====   preprocessing data to obtain Asset_vmr template  ===========
+#====================================================================
 
 df=pd.read_excel(path_dir_in+ "Volumes marchés_ Repowering.xlsx", sheet_name="BD_temp_1", header=0)
-#Out projects
+#To create a list containing parcs that are out of service
 out_projets = ["Bougainville", "Cham Longe 1", "Evits et Josaphats", "Remise Reclainville", 
                "Evits et Josaphats", "Remise Reclainville", "Maurienne / Gourgançon", "La Bouleste", 
                "Cham Longe 1 - off", "Remise Reclainville - off", "Evits et Josaphats - off", "Bougainville - off", 
@@ -44,20 +43,20 @@ df.rename(columns = {"Alias":"projet", "Technologie":"technologie", "COD":"cod",
 df = df[df['Parc '].isin(out_projets) == False]
 df.reset_index(inplace=True, drop=True)
 
-#To select rows where Nom is NaN
+#To select rows where projet name is NaN
 df = df[df['projet'].notna()]
 df.reset_index(inplace=True, drop=True)
 
-#To replace correct eolien & solar writing
+#To correct eolien & solar orthograph
 df["technologie"] = df["technologie"].str.replace("Eolien", "éolien")
 df["technologie"] = df["technologie"].str.replace("PV", "solaire")
-#
+#To set "taux_succès" of all parcs in exploitation equal to 100%
 df["taux_succès"] = 1
-#
+#To compute pnderated "puissance_installée"
 df["puissance_installée"] = df["mw"] * df["taux_succès"]
-#
+#To set "date_dementelement" 6 months before "date_msi"
 df["date_dementelement"] = df["date_msi"] - pd.DateOffset(months=6)
-#
+#To create "en_planif" column Bolean: Non=for parc already in exploitation/Oui=projet in planification
 df["en_planif"] = "Non"
 #
 df = df.assign(asset_id=[1 + i for i in xrange(len(df))])[['asset_id'] + df.columns.tolist()]
@@ -67,26 +66,25 @@ df_asset = df[["rw_id","asset_id", "projet_id", "projet", "technologie", "cod", 
                "type_hedge", "date_debut", "eoh", "date_merchant", "date_dementelement", "repowering", 
                "date_msi", "en_planif"]]
 
-#To select in planif that should be in volume_repowering 
+#To create a df containing projects with a cod>= 2023 
 vmr_to_planif = df_asset[df_asset['cod'] > (dt.datetime.today() + pd.offsets.YearEnd()).strftime('%Y-%m-%d')]
-
 vmr_to_planif = vmr_to_planif[["rw_id", "asset_id", "projet_id", "projet", "technologie", "cod", "mw", "taux_succès", 
                                "puissance_installée", "eoh", "date_merchant", "date_dementelement", 
                                "repowering", "date_msi", "en_planif"]]
 
-#To exclude projects in planif from the one in production ones
-df_asset = df_asset[df_asset['cod'] <= (dt.datetime.today() + pd.offsets.YearEnd()).strftime('%Y-%m-%d')]
+#To create a df containing projets already in exploitation
+df_asset=df_asset[df_asset['cod'] <= (dt.datetime.today() + pd.offsets.YearEnd()).strftime('%Y-%m-%d')]
 
-#
-hedge_vmr = df_asset[["rw_id", "projet_id", "projet", "technologie", "type_hedge", "cod", 
+#To select specific rows to create a hedge df
+hedge_vmr=df_asset[["rw_id", "projet_id", "projet", "technologie", "type_hedge", "cod", 
                       "date_merchant", "date_dementelement", "puissance_installée", "en_planif"]]
-#
+#To create a column containing hedge_id
 hedge_vmr = hedge_vmr.assign(hedge_id=[1 + i for i in xrange(len(hedge_vmr))])[['hedge_id'] + hedge_vmr.columns.tolist()]
-#
+#To select specific columns 
 hedge_vmr = hedge_vmr[["rw_id", "hedge_id", "projet_id", "projet", "technologie", "type_hedge", "cod", 
                        "date_merchant", "date_dementelement", "puissance_installée", "en_planif"]]
-#
-df_asset = df_asset[["rw_id", "asset_id", "projet_id", "projet", "technologie", "cod", "mw", "taux_succès", "puissance_installée", 
+#Select specific columns to create asset template    
+df_asset=df_asset[["rw_id", "asset_id", "projet_id", "projet", "technologie", "cod", "mw", "taux_succès", "puissance_installée", 
                      "eoh", "date_merchant", "date_dementelement", "repowering", "date_msi", "en_planif"]]
 
 #To make export as excel files
@@ -96,10 +94,9 @@ df_asset.to_excel(path_dir_temp + "projet_names.xlsx", index=False, columns=["as
 hedge_vmr.to_excel(path_dir_temp + "hedge_vmr.xlsx", index=False, float_format="%.3f")
 
 
-#============================================================
-#===============   Asset Planif  ============================
-#============================================================
-
+#================================================================================================
+#=============== Data preprocessing to create Asset_planif_template  ============================
+#================================================================================================
 df = pd.read_excel(path_dir_in+"Outils planification agrege 2022-2024.xlsm", sheet_name="Planification", header=20, 
                     usecols=['#', 'Nom', 'Technologie', 'Puissance totale (pour les  repowering)', 
                              'date MSI depl', "date d'entrée dans statut S", 'Taux de réussite'])
@@ -108,16 +105,16 @@ df = pd.read_excel(path_dir_in+"Outils planification agrege 2022-2024.xlsm", she
 hedge_vmr=pd.read_excel(path_dir_temp+"hedge_vmr.xlsx")
 asset_vmr=pd.read_excel(path_dir_temp+"template_asset_vmr.xlsx") 
 
-#To drop all optimisation 
+#To drop all projects with "Nom" as optimisation 
 rows_to_drop = sqldf("select * from df where Nom like 'optimisation%';", locals())
 rows_to_drop = list(rows_to_drop['Nom'])
-
+#To drop all projects with "Nom" as Poste
 rows_to_drop2 = sqldf("select * from df where Nom like 'Poste%';", locals())
 rows_to_drop2 = list(rows_to_drop2['Nom'])
-
+#To drop all projects with "Nom" as Stockage 
 rows_to_drop3 = sqldf("select * from df where Nom like 'Stockage%';", locals())
 rows_to_drop3 = list(rows_to_drop3['Nom'])
-
+#To drop all projects with "Nom" as Regul 
 rows_to_drop4 = sqldf("select * from df where Nom like 'Régul%';", locals())
 rows_to_drop4 = list(rows_to_drop4['Nom'])
 
