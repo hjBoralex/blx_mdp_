@@ -96,13 +96,15 @@ hedge_vmr.to_excel(path_dir_temp + "hedge_vmr.xlsx", index=False, float_format="
 
 #================================================================================================
 #=============== Data preprocessing to create Asset_planif_template  ============================
-#================================================================================================git 
+#================================================================================================
+#To import data frame containing projects in planification
 df = pd.read_excel(path_dir_in+"Outils planification agrege 2022-2024.xlsm", sheet_name="Planification", header=20, 
                     usecols=['#', 'Nom', 'Technologie', 'Puissance totale (pour les  repowering)', 
                              'date MSI depl', "date d'entrée dans statut S", 'Taux de réussite'])
 
-
+#To import hedge 
 hedge_vmr=pd.read_excel(path_dir_temp+"hedge_vmr.xlsx")
+#To import asset 
 asset_vmr=pd.read_excel(path_dir_temp+"template_asset_vmr.xlsx") 
 
 #To drop all projects with "Nom" as optimisation 
@@ -126,22 +128,22 @@ df.rename(columns = {'#':'projet_id', 'Nom':'projet', 'Technologie':'technologie
 #drop optimisation
 #df5.loc[df5['Nom'].isin([rows_to_drop])]
 df = df[df.projet.isin(rows_to_drop) == False]
-#drop poste de...
+#drop projects poste de...
 df = df[df.projet.isin(rows_to_drop2) == False]
-#drop poste de...
+#drop projects Stockage de...
 df = df[df.projet.isin(rows_to_drop3) == False]
-#drop poste de...
+#drop projects Regul de...
 df = df[df.projet.isin(rows_to_drop4) == False]
-
+#To select all projets where technologie is not autre 
 df = df.loc[df['technologie'] != 'autre']
 
 
-df['date_msi'] = pd.to_datetime(df["date_msi"])
+df['date_msi']=pd.to_datetime(df["date_msi"])
 
-#To fill n/a date_msi with with date today + 50 years planif
+#To fill n/a of date_msi column with with date today + 50 years
 df["date_msi"].fillna((dt.datetime.today() + pd.DateOffset(years=50)).strftime('%Y-%m-%d'), inplace=True)
 
-#To select projects in planif that should be in production 
+#To select projects in planif with a cod date less than 2023. These projects should be moved to projects in planif  
 df_to_asset_vmr = df[df['date_msi'] < (dt.datetime.today() + pd.offsets.YearEnd()).strftime('%Y-%m-%d')]
 
 
@@ -154,61 +156,69 @@ df = df[df['projet'].notna()]
 df_to_asset_vmr.reset_index(inplace=True, drop=True)
 df.reset_index(inplace=True, drop=True)
 
+#To set date cod equals to date msi
 df['cod'] = df['date_msi']
 df_to_asset_vmr['cod'] = df_to_asset_vmr['date_msi']
 
-#To fill n/a with 0.80
+#To fill n/a in taux_succès column with default value
 df["taux_succès"].fillna(0.599, inplace=True)
 df_to_asset_vmr['taux_succès'].fillna(1, inplace=True)
 
 #To calculate mw100%
-df['puissance_installée'] = df['mw'] * df["taux_succès"]
+df['puissance_installée']=df['mw'] * df["taux_succès"]
 df_to_asset_vmr['puissance_installée'] = df_to_asset_vmr["mw"] * df_to_asset_vmr["taux_succès"]
-#eoh
+#To create a column called eoh
 df['eoh'] = np.nan
 df_to_asset_vmr['eoh'] = np.nan
-#
+
+#To set a date merchant as date cod + 20 years 
 df['date_merchant'] = df["cod"] + pd.DateOffset(years=20) 
 df_to_asset_vmr['date_merchant'] = df_to_asset_vmr["cod"] + pd.DateOffset(years=20) 
-#
+#Create a column date dementelemnt and set default value as nan
 df['date_dementelement'] = np.nan
 df_to_asset_vmr['date_dementelement'] = np.nan
-#
+
+#To create a repowering column
 df['repowering'] = np.nan
 df_to_asset_vmr['repowering'] = np.nan
-#
+#To create a column en_planif
 df['en_planif'] = 'Oui'
 df_to_asset_vmr['en_planif'] = 'Non'
-#
+
+#correct correct "eolien" spelling
 df["technologie"] = df["technologie"].str.replace("éolien ", "éolien")
 df_to_asset_vmr["technologie"] = df_to_asset_vmr["technologie"].str.replace("éolien ", "éolien")
-#
+
+#To create a column rw_id of respective data frame
 df = df.assign(rw_id=[1 + i for i in xrange(len(df))])[['rw_id'] + df.columns.tolist()]
 df = df.assign(asset_id=[(len(asset_vmr)+1) + i for i in xrange(len(df))])[['asset_id'] + df.columns.tolist()]
 df_to_asset_vmr = df_to_asset_vmr.assign(rw_id=[1 + i for i in xrange(len(df_to_asset_vmr))])[['rw_id'] + df_to_asset_vmr.columns.tolist()]
 df_to_asset_vmr = df_to_asset_vmr.assign(asset_id=[1 + i for i in xrange(len(df_to_asset_vmr))])[['asset_id'] + df_to_asset_vmr.columns.tolist()]
-#
+
+#To select only specific rows
 df = df[['rw_id', "asset_id", 'projet_id', 'projet', 'technologie', 'cod', 'mw', 'taux_succès', 
          'puissance_installée', 'eoh', 'date_merchant', 'date_dementelement', 
          'repowering', 'date_msi', 'en_planif']]
-#
 
+#To select only specific rows(df containing hedge template data of projects in planification)
 hedge_planif = df[["rw_id", "projet_id", "projet", "technologie", "cod", "date_merchant", "date_dementelement", 
                    "puissance_installée", "en_planif"]]
 hedge_planif = hedge_planif.assign(hedge_id=[(len(hedge_vmr)+1) + i for i in xrange(len(hedge_planif))])[['hedge_id'] + hedge_planif.columns.tolist()] 
-
 hedge_planif = hedge_planif[["rw_id", "hedge_id", "projet_id", "projet", "technologie", "cod", "date_merchant", "date_dementelement", 
                              "puissance_installée", "en_planif"]]
-#
+
+#Select only specific columns 
 df_to_asset_vmr = df_to_asset_vmr[['rw_id', 'projet_id', 'projet', 'technologie', 'cod', 'mw', 'taux_succès', 
                                  'puissance_installée', 'eoh', 'date_merchant', 'date_dementelement', 
                                  'repowering', 'date_msi', 'en_planif']]
-#To export as excel
+#To export data as excel files
 df_to_asset_vmr.to_excel(path_dir_temp+'planif_to_asset_vmr.xlsx', index=False, float_format="%.3f")
 hedge_planif.to_excel(path_dir_temp+"hedge_planif.xlsx", index=False, float_format="%.3f")
 df.to_excel(path_dir_temp+'template_asset_planif.xlsx', index=False, float_format="%.3f")
 
-#===================== Merging Asset VMR and Asset Planif
+#==============================================================================
+#===================== Merging Asset VMR and Asset Planif =====================
+#==============================================================================
 
 df_asset_vmr = pd.read_excel(path_dir_temp+"template_asset_vmr.xlsx")
 df_asset_planif = pd.read_excel(path_dir_temp+"template_asset_planif.xlsx")
@@ -219,4 +229,9 @@ asset_vmr_planif.reset_index(inplace=True, drop=True)
 
 asset_vmr_planif.drop("rw_id", axis=1, inplace=True)
 asset_vmr_planif = asset_vmr_planif.assign(rw_id=[1 + i for i in xrange(len(asset_vmr_planif))])[['rw_id'] + asset_vmr_planif.columns.tolist()]
-#asset_vmr_planif.to_excel(path_dir_in+"template_asset.xlsx", index=False, float_format="%.3f")
+
+#==============================================================================
+#=====================   To export asset template  ============================
+#==============================================================================
+asset_vmr_planif.to_excel(path_dir_in+"template_asset.xlsx", index=False, float_format="%.3f")
+
