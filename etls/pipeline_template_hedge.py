@@ -28,7 +28,7 @@ path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Ma
 #===============     Hedge VMR     ==========================
 #============================================================
 
-#To import data 
+#To import hedge data extracted from 
 df_hedge_vmr=pd.read_excel(path_dir_temp+"hedge_vmr.xlsx")
 df_hedge_planif=pd.read_excel(path_dir_temp+"hedge_planif.xlsx")
 

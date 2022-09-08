@@ -24,6 +24,14 @@ print("The current working directory is: {0}".format(os.getcwd()))
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
 path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/temp/'
 
+
+#====================================================
+#=========    To change time horizon  ===============
+#====================================================
+nb_months=12
+nb_years=(2028-2022)+1
+horizon=nb_months*nb_years
+
 #====================================================
 #================ p50 asset_vmr =====================
 #====================================================
@@ -57,12 +65,13 @@ prod_perc = prod_perc.rename(columns=prod.set_index('projet')['projet_id'])
 df3 = df1.merge(df2, on='projet_id')
 df3.reset_index(drop=True, inplace=True)
 
-#To define a dict containing prod percentage  
+#To define a dict containing prod profil  
 d_prod_perc = prod_perc.to_dict()
 
-start_date = pd.to_datetime(["01-01-2022"] * nbr)
+#To create a df 
+start_date = pd.to_datetime(["01-01-2022"] * nbr)#To change starting date ex:To "01-01-2022" if the  
 d = pd.DataFrame()
-for i in range(0, 84):
+for i in range(0, horizon):
     df_buffer = df3
     df_buffer["date"] = start_date
     l_p50 = []
@@ -110,9 +119,9 @@ d = d[['rw_id', 'asset_id', 'projet_id', 'projet', 'date', 'année', 'trim', 'mo
 #To export results as a data frame
 d.to_excel(path_dir_temp + 'p50_p90_asset_vmr.xlsx', index=False, float_format="%.3f")
 
-#==================================================================
-#======================= p50 asset_planif =========================
-#==================================================================
+#==============================================================================
+#============================= p50 asset_planif ===============================
+#==============================================================================
 
 df = pd.read_excel(path_dir_in + "template_asset.xlsx")
 df = df.loc[(df["en_planif"] == "Oui") & (df["technologie"] == "éolien")]
