@@ -96,7 +96,7 @@ hedge_vmr.to_excel(path_dir_temp + "hedge_vmr.xlsx", index=False, float_format="
 
 #================================================================================================
 #=============== Data preprocessing to create Asset_planif_template  ============================
-#================================================================================================
+#================================================================================================git 
 df = pd.read_excel(path_dir_in+"Outils planification agrege 2022-2024.xlsm", sheet_name="Planification", header=20, 
                     usecols=['#', 'Nom', 'Technologie', 'Puissance totale (pour les  repowering)', 
                              'date MSI depl', "date d'entrée dans statut S", 'Taux de réussite'])
