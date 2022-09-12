@@ -4,7 +4,6 @@ Created on Sun Sep  4 13:23:00 2022
 
 @author: hermann.ngayap
 """
-
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -27,8 +26,7 @@ path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Ma
 #====================================================================
 #=====   preprocessing data to obtain Asset_vmr template  ===========
 #====================================================================
-
-df=pd.read_excel(path_dir_in+ "Volumes marchés_ Repowering.xlsx", sheet_name="BD_temp_1", header=0)
+df=pd.read_excel(path_dir_in+ "Volumes marchés_ Repowering.xlsx", sheet_name="vmr", header=0)
 #To create a list containing parcs that are out of service
 out_projets = ["Bougainville", "Cham Longe 1", "Evits et Josaphats", "Remise Reclainville", 
                "Evits et Josaphats", "Remise Reclainville", "Maurienne / Gourgançon", "La Bouleste", 
@@ -44,7 +42,7 @@ df = df[df['Parc '].isin(out_projets) == False]
 df.reset_index(inplace=True, drop=True)
 
 #To select rows where projet name is NaN
-df = df[df['projet'].notna()]
+df=df[df['projet'].notna()]
 df.reset_index(inplace=True, drop=True)
 
 #To correct eolien & solar orthograph
@@ -233,5 +231,5 @@ asset_vmr_planif = asset_vmr_planif.assign(rw_id=[1 + i for i in xrange(len(asse
 #==============================================================================
 #=====================   To export asset template  ============================
 #==============================================================================
-asset_vmr_planif.to_excel(path_dir_in+"template_asset.xlsx", index=False, float_format="%.3f")
+asset_vmr_planif.to_excel(path_dir_in+"template_asset_.xlsx", index=False, float_format="%.3f")
 

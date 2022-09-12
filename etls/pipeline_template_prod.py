@@ -29,7 +29,7 @@ path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Ma
 #====================   pipeline productible ======================
 #==================================================================
 
-#To import prod data from the as pd data frame from excel file  
+#To import prod data from as pd data frame  
 df1 = pd.read_excel(path_dir_in+"Copie de Productibles - Budget 2022 - version 1 loadé du 21 09 2021.xlsx", sheet_name="Budget 2022", header=1)
 df1 = df1[["Projet", "Budget 2022 (KWh) - P50", "Budget 2022 (KWh) - P90 "]]
 df1 = df1.iloc[0:105,:]#Eventualy this can change if new parcs are added. 0:105 because 105 is the last row containing prod data
@@ -78,7 +78,6 @@ prod_perc.rename(columns = {"Extension plaine d'Escrebieux XPE":"Extension plain
  
 #To export prod, profil, typical profil data as one excel file
 #Create a Pandas Excel writer using XlsxWriter as the engine.
-
 writer = pd.ExcelWriter(path_dir_in + 'template_prod.xlsx', engine='xlsxwriter')
 #Write each dataframe to a different worksheet.
 df1.to_excel(writer, sheet_name="prod", float_format="%.3f", index=False)

@@ -43,10 +43,10 @@ projet_names_id.rename(columns={"projet_id":"code", "projet":"projet_names"}, in
 
 #To join projet_id, projet and prod data frame
 frames = [projet_names_id, prod]
-df = pd.concat(frames, axis=1, ignore_index=False)
+df=pd.concat(frames, axis=1, ignore_index=False)
 
 #To create a new column containing projet_id in the prod data frame
-n = 3#n=3 to choose the first 3 string
+n = 4#n=3 to choose the first 3 string
 df.loc[df['projet'].str[:n] == df['projet_names'].str[:n], 'projet_id'] = df["code"]
 df=df[["projet_id", "projet", "p50", "p90"]]
 
@@ -69,25 +69,22 @@ prod_perc_id = (pd
 prod_perc_id.reset_index(inplace=True, drop=True)
 prod_perc_id = prod_perc_id.iloc[1:,:]
 
-#==============================================================================
-#=============== To join annual production to asset template   ================
-#==============================================================================
-asset_vmr_planif=pd.read_excel(path_dir_in+"template_asset.xlsx") 
-asset_template=pd.merge(asset_vmr_planif, prod, how="left", on=['projet_id', 'projet'])
-asset_template.to_excel(path_dir_in+"template_asset.xlsx", index=False)
-
-
 #To export multiple df into one excel file.
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter(path_dir_in + 'template_prod.xlsx', engine='xlsxwriter')
-# Write each dataframe to a different worksheet.
+#Write each dataframe to a different worksheet.
 df.to_excel(writer, sheet_name="prod", float_format="%.3f", index=False)
 prod_perc_id.to_excel(writer, sheet_name="prod_perc_id", float_format="%.3f", index=False)
 prod_perc.to_excel(writer, sheet_name="prod_perc", float_format="%.3f", index=False)
 mean_perc.to_excel(writer, sheet_name="mean_perc", float_format="%.3f", index=False)
-# Close the Pandas Excel writer and output the Excel file.
+#Close the Pandas Excel writer and output the Excel file.
 writer.save()
 
-
-
+#==============================================================================
+#=============== To join annual production to asset template   ================
+#==============================================================================
+asset_vmr_planif=pd.read_excel(path_dir_in+"template_asset_.xlsx")
+prod_id=df.iloc[:,np.r_[0, 2, 3]]
+asset_template=pd.merge(asset_vmr_planif, prod_id, how="left", on=['projet_id'])
+asset_template.to_excel(path_dir_in+"template_asset_.xlsx", index=False)
 

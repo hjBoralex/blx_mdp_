@@ -42,5 +42,6 @@ colors = {
     "wind_power":"#00b894",#
     "mtm_y":"#2ecc71",
     "mtm_q":"#f1c40f",
-    "mtm_m":"#f39c12"
+    "mtm_m":"#f39c12",
+    "mtm_h":"#eb2f06"
 }
