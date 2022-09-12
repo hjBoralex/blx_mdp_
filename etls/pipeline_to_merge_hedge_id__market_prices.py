@@ -19,22 +19,21 @@ from datetime import datetime
 import datetime as dt
 import pickle
 xrange = range
+import warnings
+warnings.filterwarnings("ignore")
 
 pd.options.display.float_format = '{:.3f}'.format
 pd.set_option('display.max_columns', 200)
 pd.set_option('display.max_rows', 200)
 
 print("The working directory was: {0}".format(os.getcwd()))
-os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/etls/asset-hedge/")
+os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/")
 print("The current working directory is: {0}".format(os.getcwd()))
-
+#
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
 path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/temp/'
 
 #Open SQL connection to fetch monthly prices data derrived from price curve
-import warnings
-warnings.filterwarnings("ignore")
-
 import pyodbc
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -65,11 +64,12 @@ query_result=pd.read_sql_query('''
                                        DATEPART(QUARTER, delivery_period) AS quarters,
                                        DATEPART(MONTH, delivery_period) AS months
                                        FROM DIM_settlement_prices_fr_eex 
-                                  WHERE current_v=1 AND last_update='2022-08-26';
+                                  WHERE current_v!=1 AND last_update='2022-08-10';
                                 ''', cnx)
 
-market_prices=query_result[['delivery_period', 'settlement_price', 'years', 'quarters', 'months']]
-
+query_result.head(2)
+market_prices=query_result[['delivery_period', 'settlement_price', 'years', 
+                            'quarters', 'months']]
 cnx.close()
 ### MERGE ASSET AND DATE WITH PRICE FROM FUTURES CURVE
 #To import asset and hedge data
@@ -104,6 +104,7 @@ print(market_prices_.shape)
 #To merge both data frame
 frame=[df_hedge, market_prices_]
 hedge_market_prices=pd.concat(frame, axis=1, ignore_index=False)
+hedge_market_prices.shape
 
 hedge_market_prices.to_excel(path_dir_in+'hedge_settlement_prices.xlsx', sheet_name='hedge_settlement_prices', index=False)
 

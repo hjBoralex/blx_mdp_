@@ -19,7 +19,6 @@ from tabs.MtM_tab import MtM_layout
 from tabs.merchant_cr_tab import merchant_cr_layout
 from tabs.prod_hedge_exp_tab import prod_hedge_exp_layout
 from tabs.solar_wind_power_tab import solar_wind_power_prod_layout
-from tabs.MtM_tab import MtM_layout
 import dash_auth
 
 import plotly.express as px
@@ -37,15 +36,14 @@ auth = dash_auth.BasicAuth(app, username_password_pairs)
 server = app.server
 
 
+year_count = []
+for year in years['years'].unique():
+    year_count.append({'label':str(year),'value':year})
 
 years = ['2022',' 2023', '2024', '2025', '2026', '2027', '2028']
 quarters = ['Q1', 'Q2', 'Q13', 'Q4']
 months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug',' sep', 'oct', 'nov', 'dec']
-
-year_count = []
-for year in years['years'].unique():
-    year_count.append({'label':str(year),'value':year})
-    
+   
 # Define tab_selected_style. Unfortunately cannot be defined in .css files
 tab_height = 40
 tab_style = {"height": tab_height, "line-height": tab_height, "padding": 0}
@@ -495,4 +493,4 @@ def update_figure_m_ppa_m(selected_year_m_ppa_m):
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8070, debug=True)
+    app.run_server()#host='0.0.0.0', port=8070, 

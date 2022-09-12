@@ -36,16 +36,18 @@ MtM_layout=html.Div(
                                MtM_H_graph
                                ]
                            ),
-                       html.Div(
-                           style={
-                               "display": "inline-block",
-                               "margin-top": "0px",
-                               "width": "25%",
-                               },
-                           children=[
-                               #MtM_H_graph
-                               ],
-                           ),
+# =============================================================================
+#                        html.Div(
+#                            style={
+#                                "display": "inline-block",
+#                                "margin-top": "0px",
+#                                "width": "25%",
+#                                },
+#                            children=[
+#                              
+#                                ],
+#                            ),
+# =============================================================================
                        ]
                    )]
            )],

@@ -18,7 +18,7 @@ pd.options.display.float_format = '{:.3f}'.format
 pd.set_option('display.max_columns', 200)
 
 print("The working directory was: {0}".format(os.getcwd()))
-os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/etls/asset-hedge/")
+os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/")
 print("The current working directory is: {0}".format(os.getcwd()))
 
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
@@ -29,9 +29,9 @@ path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Ma
 #=========    To change time horizon  ===============
 #====================================================
 nb_months=12
-nb_years=(2028-2022)+1
-horizon=nb_months*nb_years
-
+nb_years=(2028-2022)+1     #2028:is the end year while 2022 represents the starting year.
+horizon=nb_months*nb_years #It represents the nber of months between the start date and the end date. 
+date_obj="01-01-2022"      #To change the starting date of our horizon ex:To "01-01-2023" if we are in 2023
 #====================================================
 #================ p50 asset_vmr =====================
 #====================================================
@@ -60,7 +60,6 @@ prod_perc = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="prod_p
 #To change prod df header from projet to projet_id
 prod_perc = prod_perc.rename(columns=prod.set_index('projet')['projet_id'])
 
-
 #To merge cod data and prod data
 df3 = df1.merge(df2, on='projet_id')
 df3.reset_index(drop=True, inplace=True)
@@ -68,8 +67,8 @@ df3.reset_index(drop=True, inplace=True)
 #To define a dict containing prod profil  
 d_prod_perc = prod_perc.to_dict()
 
-#To create a df 
-start_date = pd.to_datetime(["01-01-2022"] * nbr)#To change starting date ex:To "01-01-2022" if the  
+#This code is to compute monthly p50 and p90.  
+start_date = pd.to_datetime([date_obj] * nbr)                 
 d = pd.DataFrame()
 for i in range(0, horizon):
     df_buffer = df3
@@ -171,9 +170,9 @@ mean_perc_sol = mean_perc.iloc[:,[0, 1]]
 mean_perc_eol = mean_perc.iloc[:,[0,-1]]
 
 #create a dataframe with date from 2022 to 2028 solaire
-start_date = pd.to_datetime(["01-01-2022"] * nbr_sol)
+start_date = pd.to_datetime([date_obj] * nbr_sol)
 d1 = pd.DataFrame()
-for i in range(0,84):
+for i in range(0, horizon):
     df_buffer = prod_planif_solaire.copy() 
     df_buffer["date"] = start_date
     d1 = pd.concat([d1, df_buffer],axis=0)
@@ -191,9 +190,9 @@ d1['p50_adj'] = d1['p50'] * pct
 d1['p90_adj'] = d1['p90'] * pct
 
 #create a dataframe with date from 2022 to 2028 éolien
-start_date = pd.to_datetime(["01-01-2022"] * nbr_eol)
+start_date = pd.to_datetime([date_obj] * nbr_eol)
 d2 = pd.DataFrame()
-for i in range(0,84):
+for i in range(0, horizon):
     df_buffer = prod_planif_eolien.copy() 
     df_buffer["date"] = start_date
     d2 = pd.concat([d2, df_buffer],axis=0)

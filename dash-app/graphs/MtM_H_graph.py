@@ -20,32 +20,36 @@ MtM_H_graph= html.Div(
                             style={
                                 "display": "inline-block",
                                 "vertical-align": "top",
-                                "width": "50%",
+                                "width": "60%",
                             },
                             children=[
                                 html.Div(
                                     children=[
-                                        MtM_H_sp
+                                        #MtM_H_sp
                                         ],
-                                    className=""
+                                    className="custom-tab"
                                     ),
                                 ],
                         ),
-                        html.Div(
-                            style={
-                                "display": "inline-block",
-                                "vertical-align": "top",
-                                "width": "50%",
-                            },
-                            children=[
-                                html.Div(
-                                    children=[
-                                        
-                                        ],
-                                    className="",
-                                )
-                            ],
-                        )
+                        
+
+# =============================================================================
+#                         html.Div(
+#                             style={
+#                                 "display": "inline-block",
+#                                 "vertical-align": "top",
+#                                 "width": "40%",
+#                             },
+#                             children=[
+#                                 html.Div(
+#                                     children=[
+#                                         
+#                                         ],
+#                                     className="",
+#                                 )
+#                             ],
+#                         )
+# =============================================================================
                         
                     ]
                 ),

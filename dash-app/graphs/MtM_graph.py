@@ -34,7 +34,7 @@ MtM_graph= html.Div(
                                     children=[
                                         MtM_sp
                                         ],
-                                    className=""
+                                    className="custom-tab"
                                     ),
                                 ],
                         ),
@@ -49,7 +49,7 @@ MtM_graph= html.Div(
                                     children=[
                                         MtM_merchant_sp
                                         ],
-                                    className="",
+                                    className="custom-tab",
                                 )
                             ],
                         ),
@@ -62,9 +62,9 @@ MtM_graph= html.Div(
                             children=[
                                 html.Div(
                                     children=[
-                                        MtM_regulated_sp
+                                        #MtM_regulated_sp
                                         ],
-                                    className="",
+                                    className="custom-tab",
                                 )
                             ],
                         )

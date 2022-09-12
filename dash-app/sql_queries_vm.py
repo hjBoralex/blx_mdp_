@@ -1909,7 +1909,12 @@ GROUP BY h.année \
 ORDER BY h.année;"
 query_results_51 = pd.read_sql(query_51, mssql_engine())
 
-
+#===========MtM Portfolio history ============
+query_52="SELECT date, \
+       mtm \
+FROM DIM_mtm \
+WHERE date != '1901-01-01';"
+query_results_52 = pd.read_sql(query_52, mssql_engine())
 
 
 

@@ -15,7 +15,7 @@ from pandasql import sqldf
 pysqldf = lambda q: sqldf(q, globals())
 import os
 
-#pd.options.display.float_format = '{:.0f}'.format
+pd.options.display.float_format = '{:.3f}'.format
 pd.set_option('display.max_columns', 200)
 
 print("The working directory was: {0}".format(os.getcwd()))
