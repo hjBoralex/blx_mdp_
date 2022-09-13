@@ -27,15 +27,15 @@ path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Ma
 #===================================================================================
 #========================== To add projet_id to prod data ==========================
 #===================================================================================
-#To import template prod 
-prod = pd.read_excel(path_dir_in + "template_prod.xlsx")
+#To import template prod with no projet_id df 
+prod = pd.read_excel(path_dir_temp + "template_prod_no_id.xlsx")
 prod.sort_values(by=['projet'], inplace=True, ignore_index=True)
-prod_perc = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="prod_perc")
+prod_perc = pd.read_excel(path_dir_temp + "template_prod_no_id.xlsx", sheet_name="prod_perc")
 prod_perc = prod_perc.iloc[:,1:]
-mean_perc = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="mean_perc")
+mean_perc = pd.read_excel(path_dir_temp + "template_prod_no_id.xlsx", sheet_name="mean_perc")
 
 #To create a df containing all projet_id, projet names from template asset 
-projet_names_id = pd.read_excel(path_dir_in + "template_asset.xlsx", usecols = ["projet_id", "projet", "en_planif"])
+projet_names_id = pd.read_excel(path_dir_temp + "asset_vmr_planif.xlsx", usecols = ["projet_id", "projet", "en_planif"])
 projet_names_id = projet_names_id.loc[projet_names_id["en_planif"] == "Non"]
 projet_names_id.sort_values(by=['projet'], inplace=True, ignore_index=True)
 projet_names_id.drop("en_planif", axis=1, inplace=True)
@@ -69,7 +69,7 @@ prod_perc_id = (pd
 prod_perc_id.reset_index(inplace=True, drop=True)
 prod_perc_id = prod_perc_id.iloc[1:,:]
 
-#To export multiple df into one excel file.
+#To export prod with projet_id, profil with projet_id, profil without projet_id, typical profil as pd df.
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter(path_dir_in + 'template_prod.xlsx', engine='xlsxwriter')
 #Write each dataframe to a different worksheet.
@@ -80,11 +80,4 @@ mean_perc.to_excel(writer, sheet_name="mean_perc", float_format="%.3f", index=Fa
 #Close the Pandas Excel writer and output the Excel file.
 writer.save()
 
-#==============================================================================
-#=============== To join annual production to asset template   ================
-#==============================================================================
-asset_vmr_planif=pd.read_excel(path_dir_in+"template_asset_.xlsx")
-prod_id=df.iloc[:,np.r_[0, 2, 3]]
-asset_template=pd.merge(asset_vmr_planif, prod_id, how="left", on=['projet_id'])
-asset_template.to_excel(path_dir_in+"template_asset_.xlsx", index=False)
 

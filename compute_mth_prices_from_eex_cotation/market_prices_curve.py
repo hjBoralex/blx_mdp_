@@ -21,6 +21,11 @@ print("The working directory was: {0}".format(os.getcwd()))
 os.chdir("C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in")
 print("The current working directory is: {0}".format(os.getcwd()))
 
+#Open SQL connection to fetch monthly prices data derrived from price curve
+import pyodbc
+import sqlalchemy
+from sqlalchemy import create_engine, event
+from server_credentials import server_credentials
 
 mths_remaining=12-dt.today().month
 nb_months=12
@@ -304,3 +309,34 @@ prices_mb_ext=pd.concat(frames, axis=0, ignore_index=True)
 scrapped_date=(datetime.now()).strftime("%y_%m_%d")
 yesterday=(datetime.today() - timedelta(days=1)).strftime("%y_%m_%d") 
 prices_mb_ext.to_excel(path+'prices_mb.xlsx', index=False, sheet_name=f"mb_{prices_mb_ext['Date'][0]}_scrapped_{scrapped_date}")
+
+#======================================================
+#=========== Load price curve in DB  ==================
+#======================================================
+
+prices_mb_ext['cotation_date']=prices_mb_ext['Date'][0]
+prices_mb_ext_=prices_mb_ext[['Delivery Period', 'Settlement Price', 'cotation_date']]
+prices_mb_ext_.rename(columns = {"Delivery Period":"delivery_period", "Settlement Price":"settlement_price", 
+                     }, inplace = True)
+
+
+def open_database():
+    print('Connecting to SQL Server with ODBC driver')
+    connection_string = 'DRIVER={SQL Server};SERVER='+server_credentials['server']+';DATABASE='+server_credentials['database']+';UID='+server_credentials['username']+';Trusted_Connection='+server_credentials['yes']
+    cnxn = pyodbc.connect(connection_string)
+    print('connected!')
+
+    return cnxn
+
+#windows authentication 
+def mssql_engine(): 
+    engine = create_engine('mssql+pyodbc://BLX186-SQ1PRO01/StarDust?driver=SQL+Server+Native+Client+11.0',
+                           fast_executemany=True) 
+    return engine
+cnx=open_database()
+cursor = cnx.cursor()
+
+for index, row in prices_mb_ext_.iterrows():
+    cursor.execute("INSERT INTO market_prices_fr_eex (delivery_period, settlement_price, cotation_date) values(?, ?, ?)", 
+                   row.delivery_period, row.settlement_price, row.cotation_date)
+cnx.commit()
