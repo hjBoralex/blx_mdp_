@@ -214,7 +214,31 @@ hedge_vmr_planif.drop("rw_id", axis=1, inplace=True)
 hedge_vmr_planif = hedge_vmr_planif.assign(rw_id=[1 + i for i in xrange(len(hedge_vmr_planif))])[['rw_id'] + hedge_vmr_planif.columns.tolist()]
 hedge_vmr_planif.to_excel(path_dir_in+"p50_p90_hedge_vmr_planif.xlsx", index=False, float_format="%.3f")
 
-#To check the shape
-hedge_vmr_planif.shape
 
+#==============================================================================
+#==========    Load hedge volume into p50_p90_hedge table  ====================
+#==============================================================================
+#Open SQL connection to fetch monthly prices data derrived from price curve
+import pyodbc
+import sqlalchemy
+from sqlalchemy import create_engine, event
+from server_credentials import server_credentials
+
+def open_database():
+    print('Connecting to SQL Server with ODBC driver')
+    connection_string = 'DRIVER={SQL Server};SERVER='+server_credentials['server']+';DATABASE='+server_credentials['database']+';UID='+server_credentials['username']+';Trusted_Connection='+server_credentials['yes']
+    cnxn = pyodbc.connect(connection_string)
+    print('connected!')
+
+    return cnxn
+
+#windows authentication 
+def mssql_engine(): 
+    engine = create_engine('mssql+pyodbc://BLX186-SQ1PRO01/StarDust?driver=SQL+Server+Native+Client+11.0',
+                           fast_executemany=True) 
+    return engine
+
+#Insert data in DB in asset table
+table_name='p50_p90_asset'
+hedge_vmr_planif.to_sql(table_name, con=mssql_engine(), index=False, if_exists='replace')
 
