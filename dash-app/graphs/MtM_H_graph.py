@@ -25,7 +25,7 @@ MtM_H_graph= html.Div(
                             children=[
                                 html.Div(
                                     children=[
-                                        #MtM_H_sp
+                                        MtM_H_sp
                                         ],
                                     className="custom-tab"
                                     ),

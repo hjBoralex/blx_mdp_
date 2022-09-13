@@ -27,23 +27,27 @@ prod = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="prod")
 prod_perc = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="prod_perc")
 mean_perc = pd.read_excel(path_dir_in + "template_prod.xlsx", sheet_name="mean_perc")
 
-# df_asset = pd.read_excel(cwdpath + "asset_table.xlsx")
-# df_asset = df_asset.loc[df_asset["en_planif"] == "Non"]
-
-# df_planif = pd.read_excel(cwdpath + "asset_table.xlsx")
-# df_planif = df_planif.loc[df_planif["en_planif"] == "Oui"]
-
+#To import hedge data and split into parcs in planif and in production
 df_hedge = pd.read_excel(path_dir_in + "template_hedge.xlsx")
+#Hedge data from parcs in production
 df_hedge_vmr = df_hedge.loc[df_hedge["en_planif"] == "Non"]
-#To import 
+#Hedge data from parcs in planification 
 df_hedge_planif = df_hedge.loc[df_hedge["en_planif"] == "Oui"]
 #To import template_hedge data
 df1 = pd.read_excel(path_dir_in + "template_hedge.xlsx")
 
-#=======================================================
-#=============  To compete hedge planif ================
-#=======================================================
-time_horizon = 12*7
+#====================================================
+#=========    To change time horizon  ===============
+#====================================================
+
+nb_months=12
+nb_years=(2028-2022)+1     #2028:is the end year while 2022 represents the starting year.
+horizon=nb_months*nb_years #It represents the nber of months between the start date and the end date. 
+date_obj="01-01-2022"      #To change the starting date of our horizon ex:To "01-01-2023" if we are in 2023
+
+#=====================================================
+#=============  To compete hedge planif ==============
+#=====================================================
 #8760=24*365 Number oh 
 #To calculate p50 p90 in mw/h of assets in palnification. equals to mw*8760*factor  
 df1.loc[(df1['technologie'] == 'éolien') & (df1['en_planif'] == 'Oui'), 'p50'] = df1["puissance_installée"] * 8760 * 0.25#calculer le p_50 projet éolien en planification
@@ -74,9 +78,9 @@ mean_perc_sol=mean_perc.iloc[:,[0, 1]]
 mean_perc_eol=mean_perc.iloc[:,[0,-1]]
 
 #create a dataframe with date from 2022 to 2028 solaire
-start_date=pd.to_datetime(["01-01-2022"] * n_sol)
+start_date=pd.to_datetime([date_obj] * n_sol)
 d1=pd.DataFrame()
-for i in range(0,time_horizon):
+for i in range(0, horizon):
     df_buffer = prod_planif_solaire.copy() 
     df_buffer["date"] = start_date
     d1 = pd.concat([d1, df_buffer],axis=0)
@@ -95,9 +99,9 @@ d1['p50_adj'] = -d1['p50'] * pct
 d1['p90_adj'] = -d1['p90'] * pct
 
 #create a dataframe with date from 2022 to 2028 éolien
-start_date = pd.to_datetime(["01-01-2022"] * n_eol)
+start_date = pd.to_datetime([date_obj] * n_eol)
 d2 = pd.DataFrame()
-for i in range(0,84):
+for i in range(0, horizon):
     df_buffer = prod_planif_eolien.copy() 
     df_buffer["date"] = start_date
     d2 = pd.concat([d2, df_buffer],axis=0)
@@ -183,9 +187,9 @@ d1.to_excel(path_dir_temp + 'p50_p90_hedge_planif_solaire.xlsx', index=False, fl
 d2.to_excel(path_dir_temp + 'p50_p90_hedge_planif_eolien.xlsx', index=False, float_format="%.3f")
 
 #To check data
-print(df1.loc[(df1['projet_id'] == 'SE19') & (df1['hedge_id'] == 294)])
-df_temp = d1.loc[(d1['projet_id'] == 'SE19') & (d1['hedge_id'] == 294)]
-df_temp.head(40)
+#print(df1.loc[(df1['projet_id'] == 'SE19') & (df1['hedge_id'] == 294)])
+#df_temp = d1.loc[(d1['projet_id'] == 'SE19') & (d1['hedge_id'] == 294)]
+#df_temp.head(40)
 
 #==============================================================================================
 #======  To merge p50_hedge_vmr & p50_hedge_planif_solaire & p50_hedge_planif_eolien ==========

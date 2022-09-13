@@ -76,9 +76,9 @@ prod_perc = df2.iloc[:, 0:-2]
 prod_perc.rename(columns = {'Extension seuil de Bapaume XSB':'Extension seuil de Bapaume (XSB)'}, inplace=True)
 prod_perc.rename(columns = {"Extension plaine d'Escrebieux XPE":"Extension plaine d'Escrebieux (XPE)"}, inplace=True)
  
-#To export prod, profil, typical profil data as one excel file
+#To export prod with no projet_id, profil with no projet_id, typical profil data as one excel file 
 #Create a Pandas Excel writer using XlsxWriter as the engine.
-writer = pd.ExcelWriter(path_dir_in + 'template_prod.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter(path_dir_temp + 'template_prod_no_id.xlsx', engine='xlsxwriter')
 #Write each dataframe to a different worksheet.
 df1.to_excel(writer, sheet_name="prod", float_format="%.3f", index=False)
 prod_perc.to_excel(writer, sheet_name="prod_perc", float_format="%.3f", index=False)

@@ -22,7 +22,7 @@ from tabs.solar_wind_power_tab import solar_wind_power_prod_layout
 import dash_auth
 
 import plotly.express as px
-username_password_pairs = [['username', 'password'], ['blx_mdp', '04Apr&2O22']]
+username_password_pairs = [['username', 'password'], ['blx_mdp', '04042O22']]
 #================ Dash App
 width=1
 dashed="solid"
@@ -493,4 +493,4 @@ def update_figure_m_ppa_m(selected_year_m_ppa_m):
 
 
 if __name__ == '__main__':
-    app.run_server()#host='0.0.0.0', port=8070, 
+    app.run_server(host='127.0.0.1', port=8050, debug=True) 

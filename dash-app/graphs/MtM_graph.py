@@ -62,7 +62,7 @@ MtM_graph= html.Div(
                             children=[
                                 html.Div(
                                     children=[
-                                        #MtM_regulated_sp
+                                        MtM_regulated_sp
                                         ],
                                     className="custom-tab",
                                 )

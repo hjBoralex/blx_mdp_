@@ -16,7 +16,7 @@ pd.set_option('display.max_columns', 200)
 
 import os
 print("The working directory was: {0}".format(os.getcwd()))
-os.chdir("C:/hjBoralex/etl/gitcwd/blx_mdp_front-end/etls/")
+os.chdir('C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/')
 print("The current working directory is: {0}".format(os.getcwd()))
 
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
@@ -229,7 +229,13 @@ asset_vmr_planif.drop("rw_id", axis=1, inplace=True)
 asset_vmr_planif = asset_vmr_planif.assign(rw_id=[1 + i for i in xrange(len(asset_vmr_planif))])[['rw_id'] + asset_vmr_planif.columns.tolist()]
 
 #==============================================================================
-#=====================   To export asset template  ============================
+#==========      To export asset vmr planif as excel file    ==================
 #==============================================================================
-asset_vmr_planif.to_excel(path_dir_in+"template_asset_.xlsx", index=False, float_format="%.3f")
+
+#asset template without prod data
+asset_vmr_planif.to_excel(path_dir_temp+"asset_vmr_planif.xlsx", index=False, float_format="%.3f")
+
+
+
+
 
