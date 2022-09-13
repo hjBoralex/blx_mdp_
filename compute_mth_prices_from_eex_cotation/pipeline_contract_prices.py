@@ -24,6 +24,15 @@ print("The current working directory is: {0}".format(os.getcwd()))
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
 path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/temp/'
 
+
+#====================================================
+#=========    To change time horizon  ===============
+#====================================================
+nb_months=12
+nb_years=(2028-2022)+1     #2028:is the end year while 2022 represents the starting year.
+horizon=nb_months*nb_years #It represents the nber of months between the start date and the end date. 
+date_obj="01-01-2022"      #To change the starting date of our horizon ex:To "01-01-2023" if we are in 2023
+
 price=pd.read_excel(path_dir_in+'Production et stats de tous les parcs B22.xlsx', 
                       sheet_name='1-EO_Calcul Reporting', header=10)
 #To choose only columns rows and columns with price
@@ -103,13 +112,13 @@ asset_ppa=asset_planif_eol[asset_planif_eol['projet'].isin(ppa) == True]
 asset_planif_sol=asset_planif_sol.iloc[:,np.r_[1, 2, 3, 5, 10]]
 asset_planif_eol=asset_planif_eol.iloc[:,np.r_[1, 2, 3, 5, 10]]
 
+
 #solaire
-time_horizon = 12*7
 df1 = hedge_planif_sol.copy()
 nbr = len(df1)     
-start_date = pd.to_datetime(["2022-01-01"] * nbr)
+start_date = pd.to_datetime([date_obj] * nbr)
 d1 = pd.DataFrame()
-for i in range(0, time_horizon):
+for i in range(0, horizon):
     df_buffer= df1 
     df_buffer["date"] = start_date
     d1 = pd.concat([d1, df_buffer], axis=0)
@@ -120,9 +129,9 @@ d1.reset_index(drop=True, inplace=True)
 #éolien
 df2 = hedge_planif_eol.copy()
 nbr = len(df2)     
-start_date = pd.to_datetime(["2022-01-01"] * nbr)
+start_date = pd.to_datetime([date_obj] * nbr)
 d2 = pd.DataFrame()
-for i in range(0, time_horizon):
+for i in range(0, horizon):
     df_buffer= df2 
     df_buffer["date"] = start_date
     d2 = pd.concat([d2, df_buffer], axis=0)
@@ -323,9 +332,9 @@ price_oa_cr__22.reset_index(inplace=True, drop=True)
 
 #oa cr prices only 
 time_horizon = 12*1
-df1=pd.DataFrame(index=np.arange(89), columns=['date'])#To create an empty df of shape 89 that will contain date
+df1=pd.DataFrame(index=np.arange(89), columns=['date'])#To create an empty df of shape 89 that will contain date column
 nbr=price_oa_cr_1.shape[0]    
-start_date = pd.to_datetime(["2022-01-01"] * nbr)
+start_date = pd.to_datetime([date_obj] * nbr)
 d1 = pd.DataFrame()
 for i in range(0, time_horizon):
     df_buffer=df1 
@@ -413,7 +422,9 @@ prices_oa_cr_vmr_planif.reset_index(inplace=True, drop=True)
 #export oa, cr vmr and planif without ppa
 prices_oa_cr_vmr_planif.to_excel(path_dir_temp+'contracts_prices_oa_cr_vmr_planif.xlsx', index=False)
 
-#PPA
+#========================================
+#=================  PPA  ================
+#========================================
 
 #export oa, cr vmr and planif without ppa
 prices_oa_cr_vmr_planif=pd.read_excel(path_dir_temp+'contracts_prices_oa_cr_vmr_planif.xlsx')
@@ -431,12 +442,11 @@ ppa=pd.merge(ppa_, asset_, how='left', on=['projet_id'])
 
 
 #To create a 
-time_horizon = 12*7
 df = ppa.copy()
 nbr = len(df)     
-start_date = pd.to_datetime(["01-01-2022"] * nbr)
+start_date = pd.to_datetime([date_obj] * nbr)
 d = pd.DataFrame()
-for i in range(0, time_horizon):
+for i in range(0, horizon):
     df_buffer= df 
     df_buffer["date"] = start_date
     d = pd.concat([d, df_buffer], axis=0)

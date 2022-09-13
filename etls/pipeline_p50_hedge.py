@@ -212,6 +212,7 @@ hedge_vmr_planif.reset_index(drop=True, inplace=True)
 
 hedge_vmr_planif.drop("rw_id", axis=1, inplace=True)
 hedge_vmr_planif = hedge_vmr_planif.assign(rw_id=[1 + i for i in xrange(len(hedge_vmr_planif))])[['rw_id'] + hedge_vmr_planif.columns.tolist()]
+#Export hedge data as excel file
 hedge_vmr_planif.to_excel(path_dir_in+"p50_p90_hedge_vmr_planif.xlsx", index=False, float_format="%.3f")
 
 
@@ -238,7 +239,13 @@ def mssql_engine():
                            fast_executemany=True) 
     return engine
 
+#Fix data type
+hedge_vmr_planif['date']=pd.to_datetime(hedge_vmr_planif.date)
+hedge_vmr_planif['date']=hedge_vmr_planif['date'].dt.date
+#Rename p50 and p90 columns
+hedge_vmr_planif.rename(columns={'p50_adj':'p50', 'p90_adj':'p90'},  inplace=True)
+
 #Insert data in DB in asset table
-table_name='p50_p90_asset'
+table_name='p50_p90_hedge'
 hedge_vmr_planif.to_sql(table_name, con=mssql_engine(), index=False, if_exists='replace')
 

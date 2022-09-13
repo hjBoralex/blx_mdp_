@@ -300,6 +300,13 @@ def mssql_engine():
                            fast_executemany=True) 
     return engine
 
+#Fix data type
+p50_p90_vmr_planif['date']=pd.to_datetime(p50_p90_vmr_planif.date)
+p50_p90_vmr_planif['date']=p50_p90_vmr_planif['date'].dt.date
+
+#Rename p50 and p90 columns
+p50_p90_vmr_planif.rename(columns={'p50_adj':'p50', 'p90_adj':'p90'},  inplace=True)
+
 #Insert data in DB in asset table
 table_name='p50_p90_asset'
 p50_p90_vmr_planif.to_sql(table_name, con=mssql_engine(), index=False, if_exists='replace')
