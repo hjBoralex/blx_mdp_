@@ -35,6 +35,7 @@ print("The current working directory is: {0}".format(os.getcwd()))
 path_dir_in='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/in/'
 path_dir_temp='C:/Users/hermann.ngayap/Boralex/Marchés Energie - FR - Equipe Marchés - Gestion de portefeuille/temp/'
 
+
 #Open SQL connection to fetch monthly prices data derrived from price curve
 import pyodbc
 import sqlalchemy
@@ -68,7 +69,7 @@ sql_to_df=pd.read_sql_query('''
                                 DATEPART(QUARTER, delivery_period) AS quarters,
                                 DATEPART(MONTH, delivery_period) AS months
                                 FROM market_prices_fr_eex 
-                            WHERE cotation_date='2022-09-12';
+                            WHERE cotation_date='2022-09-13';----To extraxt market data according to cotation date
                                 ''', cnx)
 
 market_prices=sql_to_df[['delivery_period', 'settlement_price', 'years', 
@@ -76,13 +77,11 @@ market_prices=sql_to_df[['delivery_period', 'settlement_price', 'years',
 
 
 ### MERGE ASSET AND DATE WITH PRICE FROM FUTURES CURVE
-#To import asset and hedge data
-asset_d=pd.read_excel(path_dir_in+"template_asset.xlsx")
+#To import hedge data
 hedge_d=pd.read_excel(path_dir_in+"template_hedge.xlsx")
 
 
 #Extract only projet_id, cod, date_merchant, date_dementelement, date_debut, date_fin
-asset_d_=asset_d[['projet_id', 'cod', 'date_merchant', 'date_dementelement']]
 hedge_d_=hedge_d[['hedge_id', 'projet_id', 'date_debut', 'date_fin']]
 
 

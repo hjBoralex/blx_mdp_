@@ -89,7 +89,7 @@ df_hedge = df_hedge[["rw_id", "hedge_id", "projet_id", "projet", "technologie", 
                      "profil", "pct_couverture", "contrepartie", "pays_contrepartie", "en_planif"]]
 
 #hedge table
-df_hedge.to_excel(path_dir_in+"template_hedge_.xlsx", index=False, float_format="%.3f")
+df_hedge.to_excel(path_dir_in+"template_hedge.xlsx", index=False, float_format="%.3f")
 
 #==============================================================================
 #============    Load template hedge into hedge table      ====================
