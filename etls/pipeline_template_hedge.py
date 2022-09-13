@@ -89,5 +89,32 @@ df_hedge = df_hedge[["rw_id", "hedge_id", "projet_id", "projet", "technologie", 
                      "profil", "pct_couverture", "contrepartie", "pays_contrepartie", "en_planif"]]
 
 #hedge table
-version=2
-df_hedge.to_excel(path_dir_in+f"template_hedge_v{version}.xlsx", index=False, float_format="%.3f")
+df_hedge.to_excel(path_dir_in+"template_hedge_.xlsx", index=False, float_format="%.3f")
+
+#==============================================================================
+#============    Load template hedge into hedge table      ====================
+#=======================        SCD type 2       ==============================
+#==============================================================================
+
+#Open SQL connection to fetch monthly prices data derrived from price curve
+import pyodbc
+import sqlalchemy
+from sqlalchemy import create_engine, event
+from server_credentials import server_credentials
+
+def open_database():
+    print('Connecting to SQL Server with ODBC driver')
+    connection_string = 'DRIVER={SQL Server};SERVER='+server_credentials['server']+';DATABASE='+server_credentials['database']+';UID='+server_credentials['username']+';Trusted_Connection='+server_credentials['yes']
+    cnxn = pyodbc.connect(connection_string)
+    print('connected!')
+
+    return cnxn
+
+#windows authentication 
+def mssql_engine(): 
+    engine = create_engine('mssql+pyodbc://BLX186-SQ1PRO01/StarDust?driver=SQL+Server+Native+Client+11.0',
+                           fast_executemany=True) 
+    return engine
+
+
+

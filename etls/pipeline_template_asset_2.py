@@ -186,9 +186,9 @@ for ind, row in upd_rec.iterrows():
     upd=sqlalchemy.sql.update(datatable).values({'rw_id':row.rw_id, 'projet':row.projet, 'technologie':row.technologie,
                                                  'cod':row.cod, 'mw':row.mw, 'taux_succès':row.taux_succès, 'puissance_installée':row.puissance_installée,
                                                  'eoh':row.eoh, 'date_merchant':row.date_merchant, 'date_dementelement':row.date_dementelement,
-                                                 'repowering':row.repowering, 'date_msi':row.date_msi, 'en_planif':row.en_planif, 'p50':row.p50, 'p90':row.p90}) \
+                                                 'repowering':row.repowering, 'date_msi':row.date_msi, 'en_planif':row.en_planif}) \
         .where(sqlalchemy.and_(datatable.c.projet_id==row.projet_id and datatable.c.asset_id==row.asset_id))
-    cursor.execute(upd)
+    cursor.execute(upd, )
 cnx.flush()
 cnx.commit()
 cnx.close()
